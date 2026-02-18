@@ -24,15 +24,16 @@ def test_search_delegates_to_kb_search():
         mock_call.assert_called_once_with(["kb-search", "run", "my query"])
 
 
-def test_check_runs_all_three():
+def test_check_runs_all_tools():
     runner = CliRunner()
     with patch("kv._call", return_value=0) as mock_call:
         result = runner.invoke(cli, ["check"])
-        assert mock_call.call_count == 3
+        assert mock_call.call_count == 4
         calls = mock_call.call_args_list
         assert calls[0] == call(["kb-ingest", "check", "--data-dir", "./data"])
         assert calls[1] == call(["kb-indexer", "check", "--qdrant-url", "http://localhost:6333"])
         assert calls[2] == call(["kb-search", "check", "--qdrant-url", "http://localhost:6333"])
+        assert calls[3] == call(["strava-check"])
 
 
 def test_check_with_qdrant_url():
