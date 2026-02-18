@@ -17,21 +17,24 @@ def cli():
     pass
 
 
-@cli.command(name="ingest", context_settings={"allow_extra_args": True, "ignore_unknown_options": True})
+_PASSTHROUGH = {"allow_extra_args": True, "ignore_unknown_options": True}
+
+
+@cli.command(name="ingest", context_settings=_PASSTHROUGH, add_help_option=False)
 @click.argument("args", nargs=-1, type=click.UNPROCESSED)
 def ingest_cmd(args):
     """Download and transcribe YouTube content (delegates to kb-ingest)."""
     sys.exit(_call(["kb-ingest"] + list(args)))
 
 
-@cli.command(name="index", context_settings={"allow_extra_args": True, "ignore_unknown_options": True})
+@cli.command(name="index", context_settings=_PASSTHROUGH, add_help_option=False)
 @click.argument("args", nargs=-1, type=click.UNPROCESSED)
 def index_cmd(args):
     """Embed and index content into Qdrant (delegates to kb-indexer)."""
     sys.exit(_call(["kb-indexer"] + list(args)))
 
 
-@cli.command(name="search", context_settings={"allow_extra_args": True, "ignore_unknown_options": True})
+@cli.command(name="search", context_settings=_PASSTHROUGH, add_help_option=False)
 @click.argument("args", nargs=-1, type=click.UNPROCESSED)
 def search_cmd(args):
     """Search the knowledge base (delegates to kb-search)."""
