@@ -3,8 +3,19 @@ import subprocess
 import sys
 import click
 
+_CENTRAL_CONFIG = os.path.expanduser("~/.config/knowledge-vault/.env")
+
 _ENV = os.environ.copy()
 _ENV["PATH"] = os.path.expanduser("~/.local/bin") + ":" + _ENV.get("PATH", "")
+
+# Auto-load central config into subprocess environment
+if os.path.isfile(_CENTRAL_CONFIG):
+    with open(_CENTRAL_CONFIG) as _f:
+        for _line in _f:
+            _line = _line.rstrip("\n")
+            if "=" in _line and not _line.startswith("#"):
+                _k, _, _v = _line.partition("=")
+                _ENV.setdefault(_k.strip(), _v.strip())
 
 
 def _call(cmd: list[str]) -> int:
@@ -80,6 +91,28 @@ def strava_check(args):
 def strava_query(args):
     """Query local Strava database (delegates to strava-query)."""
     sys.exit(_call(["strava-query"] + list(args)))
+
+
+@cli.command(name="setup")
+def setup_cmd():
+    """Run setup wizards for all tools interactively."""
+    click.echo("=== Knowledge Vault Setup ===\n")
+
+    steps = [
+        ("kb-ingest", ["setup"]),
+        ("kb-indexer", ["setup"]),
+        ("kb-search", ["setup"]),
+        ("strava-auth", []),
+    ]
+
+    for tool, args in steps:
+        click.echo(f"\n--- {tool} ---")
+        rc = _call([tool] + args)
+        if rc != 0:
+            click.echo(f"Setup failed for {tool}. Fix the error and re-run `kv setup`.")
+            sys.exit(1)
+
+    click.echo("\nAll tools configured. Config saved to ~/.config/knowledge-vault/.env")
 
 
 @cli.command(name="check")
