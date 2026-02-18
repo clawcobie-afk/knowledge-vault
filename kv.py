@@ -8,7 +8,7 @@ _ENV["PATH"] = os.path.expanduser("~/.local/bin") + ":" + _ENV.get("PATH", "")
 
 
 def _call(cmd: list[str]) -> int:
-    return _call(cmd, env=_ENV)
+    return subprocess.call(cmd, env=_ENV)
 
 
 @click.group()
