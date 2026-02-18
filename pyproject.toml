@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=42"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "knowledge-vault"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = ["click>=8.1.7"]
+
+[project.scripts]
+kv = "kv:cli"
+
+[tool.setuptools]
+py-modules = ["kv"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
