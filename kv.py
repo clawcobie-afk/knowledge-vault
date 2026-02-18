@@ -1,6 +1,14 @@
+import os
 import subprocess
 import sys
 import click
+
+_ENV = os.environ.copy()
+_ENV["PATH"] = os.path.expanduser("~/.local/bin") + ":" + _ENV.get("PATH", "")
+
+
+def _call(cmd: list[str]) -> int:
+    return _call(cmd, env=_ENV)
 
 
 @click.group()
@@ -13,21 +21,21 @@ def cli():
 @click.argument("args", nargs=-1, type=click.UNPROCESSED)
 def ingest_cmd(args):
     """Download and transcribe YouTube content (delegates to kb-ingest)."""
-    sys.exit(subprocess.call(["kb-ingest"] + list(args)))
+    sys.exit(_call(["kb-ingest"] + list(args)))
 
 
 @cli.command(name="index", context_settings={"allow_extra_args": True, "ignore_unknown_options": True})
 @click.argument("args", nargs=-1, type=click.UNPROCESSED)
 def index_cmd(args):
     """Embed and index content into Qdrant (delegates to kb-indexer)."""
-    sys.exit(subprocess.call(["kb-indexer"] + list(args)))
+    sys.exit(_call(["kb-indexer"] + list(args)))
 
 
 @cli.command(name="search", context_settings={"allow_extra_args": True, "ignore_unknown_options": True})
 @click.argument("args", nargs=-1, type=click.UNPROCESSED)
 def search_cmd(args):
     """Search the knowledge base (delegates to kb-search)."""
-    sys.exit(subprocess.call(["kb-search"] + list(args)))
+    sys.exit(_call(["kb-search"] + list(args)))
 
 
 @cli.command(name="check")
@@ -46,7 +54,7 @@ def check_cmd(qdrant_url, data_dir, cookies):
 
     for tool, args in checks:
         click.echo(f"\n=== {tool} ===")
-        rc = subprocess.call([tool] + args)
+        rc = _call([tool] + args)
         if rc != 0:
             failures += 1
 
